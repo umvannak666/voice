@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>សាកសមត្ថភាពអាន</title>
+<style>
+body { font-family:'Noto Sans Khmer',Arial,sans-serif; background:#c7ecee; padding:20px; }
+.container { background:white; padding:25px 20px; border-radius:20px; max-width:500px; margin:auto; text-align:center; }
+button { padding:10px 20px; margin:5px; border:none; border-radius:10px; cursor:pointer; background:#22a6b3; color:white; }
+#result { min-height:50px; margin-top:15px; }
+#finalResult { margin-top:20px; background:#f1f2f6; padding:15px; border-radius:10px; text-align:left; white-space:pre-line; display:none; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>សាកសមត្ថភាពអាន - User: {{ user }}</h2>
+<p id="sentence"></p>
+<button id="startBtn">🎤 ចាប់ផ្តើមស្តាប់</button>
+<p id="result"></p>
+
+<!-- ប៊ូតុងបើកលទ្ធផល -->
+<button id="viewResultBtn" style="display:none;">📄 មើលលទ្ធផល</button>
+
+<!-- កន្លែងបង្ហាញ HTML Result -->
+<div id="finalResult"></div>
+
+<audio id="cheerSound" src="https://www.soundjay.com/human/applause-01.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_1d3b8b1f39.mp3?filename=buzzer-126611.mp3" preload="auto"></audio>
+</div>
+
+<script>
+const sentences=['ម៉ែ','ប្រជាជន','សាលារៀន','ព្រះសង្ឃ'];
+let index=0,scores=[],resultText="";
+const sentenceEl=document.getElementById("sentence");
+const resultEl=document.getElementById("result");
+const startBtn=document.getElementById("startBtn");
+const cheerSound=document.getElementById("cheerSound");
+const wrongSound=document.getElementById("wrongSound");
+const finalResult=document.getElementById("finalResult");
+const viewResultBtn=document.getElementById("viewResultBtn");
+
+sentenceEl.textContent=sentences[index];
+
+startBtn.addEventListener("click",()=>{
+    resultEl.textContent="កំពុងស្តាប់... 🎧";
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SpeechRecognition){ resultEl.textContent="Browser មិនគាំទ្រ Web Speech API ❌"; return;}
+    const recognition=new SpeechRecognition();
+    recognition.lang="km-KH"; recognition.interimResults=false;
+    recognition.start();
+
+    recognition.onresult=(event)=>{
+        const spoken=event.results[0][0].transcript.trim();
+        const targetWords=sentences[index].split(" ");
+        const spokenWords=spoken.split(" ");
+        let correct=0;
+        for(let i=0;i<targetWords.length;i++){ if(targetWords[i]===spokenWords[i]) correct++; }
+        const score=(correct/targetWords.length)*100;
+
+        resultEl.innerHTML=`អ្នកបាននិយាយ: <b>${spoken}</b><br>✅ ត្រឹម ${correct}/${targetWords.length} (${score.toFixed(1)}%)<br>`;
+        if(score===100){ resultEl.innerHTML+="<span style='color:green'>ល្អណាស់! 🌟</span>"; cheerSound.play().catch(()=>{});}
+        else if(score>=70){ resultEl.innerHTML+="<span style='color:orange'>ល្អ! ត្រូវកែលម្អតិច</span>";}
+        else{ resultEl.innerHTML+="<span style='color:red'>ត្រូវកែលម្អ! ❌</span>"; wrongSound.play().catch(()=>{});}
+
+        resultText+=`សំណួរ: ${sentences[index]}\nអាន: ${spoken}\nពិន្ទុ: ${score.toFixed(1)}%\n\n`;
+        scores.push(score);
+
+        setTimeout(()=>{
+            index++;
+            if(index<sentences.length){
+                sentenceEl.textContent=sentences[index];
+                resultEl.textContent="➡️ សូមអានប្រយោគបន្ទាប់...";
+            } else {
+                const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+                sentenceEl.textContent="🎉 អស់សំណួរ!";
+                resultEl.innerHTML=`<b>លទ្ធផលសរុប:</b><br>ពិន្ទុមធ្យមភាគ = ${avg.toFixed(1)}%<br>សំណួរ = ${scores.length}`;
+
+                const now=new Date();
+                const timestamp=now.toLocaleString("km-KH",{hour12:false});
+                resultText=`លទ្ធផលសាកសមត្ថភាពអាន\nថ្ងៃ-ម៉ោង: ${timestamp}\n---------------------------\n\n`+resultText;
+                resultText+=`📌 លទ្ធផលសរុប\nមធ្យមភាគ: ${avg.toFixed(1)}%\nសំណួរ: ${scores.length}`;
+
+                // បង្ហាញប៊ូតុង មើលលទ្ធផល
+                viewResultBtn.style.display="inline-block";
+            }
+        },2000);
+    };
+    recognition.onerror=()=>{ resultEl.textContent="មិនអាចស្គាល់សំឡេងបាន ❌"; }
+});
+
+// បើក/បិទ លទ្ធផល
+viewResultBtn.addEventListener("click",()=>{
+    if(finalResult.style.display==="none"){
+        finalResult.style.display="block";
+        finalResult.textContent=resultText;
+        viewResultBtn.textContent="❌ បិទលទ្ធផល";
+    } else {
+        finalResult.style.display="none";
+        viewResultBtn.textContent="📄 មើលលទ្ធផល";
+    }
+});
+</script>
+</body>
+</html>

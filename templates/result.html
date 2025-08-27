@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>លទ្ធផលសាកសមត្ថភាពអាន</title>
+<style>
+body { font-family:'Noto Sans Khmer',Arial,sans-serif; background:#f5f6fa; padding:20px; }
+.container { background:white; padding:20px; border-radius:15px; max-width:700px; margin:auto; }
+h2 { text-align:center; color:#2d3436; }
+table { width:100%; border-collapse:collapse; margin-top:15px; }
+table, th, td { border:1px solid #636e72; }
+th, td { padding:10px; text-align:center; }
+th { background:#0984e3; color:white; }
+tfoot td { font-weight:bold; background:#dfe6e9; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>លទ្ធផលសាកសមត្ថភាពអាន</h2>
+  <p><b>ឈ្មោះសិស្ស:</b> {{ user }}</p>
+  <p><b>ថ្ងៃ-ម៉ោង:</b> {{ timestamp }}</p>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>សំណួរ</th>
+        <th>អាន</th>
+        <th>ពិន្ទុ</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ rows }}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2">មធ្យមភាគ</td>
+        <td>{{ avg }}%</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+</body>
+</html>

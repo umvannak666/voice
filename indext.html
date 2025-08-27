@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>សាកសមត្ថភាពអាន</title>
+    <style>
+        body {
+            font-family: 'Noto Sans Khmer', Arial, sans-serif;
+            background: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #0a3d62;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #sentence {
+            font-size: 1.8rem;
+            background: #dff9fb;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        #startBtn {
+            font-size: 1.5rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            background-color: #22a6b3;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #startBtn:hover {
+            background-color: #1e90a0;
+        }
+
+        #result {
+            font-size: 1.5rem;
+            margin-top: 25px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5rem; }
+            #sentence { font-size: 1.4rem; padding: 12px 15px; }
+            #startBtn { font-size: 1.2rem; padding: 10px 20px; }
+            #result { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <h1>សាកសមត្ថភាពសិស្សអាន</h1>
+    <p id="sentence">ល្វឹងល្វើយ បច្ចុប្បន្ន</p>
+    <button id="startBtn">ចាប់ផ្តើមស្តាប់</button>
+    <p id="result"></p>
+
+    <script>
+        const sentence = document.getElementById("sentence").textContent;
+        const result = document.getElementById("result");
+        const btn = document.getElementById("startBtn");
+
+        btn.addEventListener("click", () => {
+            result.textContent = "កំពុងស្តាប់...";
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                result.textContent = "Browser មិនគាំទ្រ Web Speech API ទេ។";
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = "km-KH";
+            recognition.interimResults = false;
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const spoken = event.results[0][0].transcript;
+                result.innerHTML = `អ្នកបាននិយាយ: <b>${spoken}</b><br>`;
+
+                const targetWords = sentence.split(" ");
+                const spokenWords = spoken.split(" ");
+                let correct = 0;
+                for (let i = 0; i < targetWords.length; i++) {
+                    if (targetWords[i] === spokenWords[i]) correct++;
+                }
+                const score = (correct / targetWords.length) * 100;
+
+                result.innerHTML += `អ្នកបានត្រឹម ${correct} ពាក្យក្នុងចំណោម ${targetWords.length} (${score.toFixed(1)}%)<br>`;
+
+                if (score === 100) result.innerHTML += "ល្អណាស់! ✅";
+                else if (score >= 70) result.innerHTML += "ល្អ! ត្រូវកែលម្អតិច 🌟";
+                else result.innerHTML += "ត្រូវកែលម្អ! ❌";
+            };
+
+            recognition.onerror = (event) => {
+                result.textContent = "មិនអាចស្គាល់សំឡេងបាន ❌";
+            };
+        });
+    </script>
+</body>
+</html>
