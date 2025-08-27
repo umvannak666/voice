@@ -2,8 +2,9 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from datetime import datetime
 
+# ======= Flask App Configuration =======
 app = Flask(__name__)
-app.secret_key = "secretkey123"
+app.secret_key = "secretkey123"  # Change this to a strong secret key in production
 
 # ======= USERS =======
 USERS = {
@@ -38,5 +39,8 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+# ======= RUN LOCAL SERVER =======
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Local testing (Windows/Linux)
+    # For Render deployment, Render uses: gunicorn app:app
+    app.run(host="0.0.0.0", port=5000, debug=True)
